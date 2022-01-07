@@ -5,6 +5,7 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import Header from "./Header";
 import Footer from "./Footer";
 import { AppContext } from "context/AppContext";
+import MoblieHeader from "./MoblieHeader";
 
 function Layout({ children }) {
   const [isDark, handleChangeMode] = useContext(AppContext);
@@ -24,6 +25,7 @@ function Layout({ children }) {
       <CssBaseline />
       <Container maxWidth="lg">
         <Header />
+        <MoblieHeader />
         {children}
         <Footer />
       </Container>
