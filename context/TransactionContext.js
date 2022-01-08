@@ -9,6 +9,7 @@ export const TransactionProvider = ({ children }) => {
   const [ethereum, setEthereum] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [transactionCount, setTransactionCount] = useState(0);
+  const [transactions, setTransactions] = useState([]);
   const [infos, setInfos] = useState({
     adressTo: "",
     amount: 0,
@@ -16,14 +17,25 @@ export const TransactionProvider = ({ children }) => {
     message: "",
   });
   useEffect(() => {
+    setEthereum(window.ethereum);
+    checkIfWalletIsConnected();
+  }, []);
+  useEffect(() => {
     if (localStorage.getItem("transactionCount")) {
       setTransactionCount(localStorage.getItem("transactionCount"));
     }
   }, [transactionCount]);
-  useEffect(() => {
-    setEthereum(window.ethereum);
-    checkIfWalletIsConnected();
-  }, []);
+
+  const getEthereumContract = () => {
+    const provider = new ethers.providers.Web3Provider(ethereum);
+    const signer = provider.getSigner();
+    const transactionContract = new ethers.Contract(
+      process.env.NEXT_PUBLIC_CONTRACT_ADDRESS,
+      contractABI,
+      signer
+    );
+    return transactionContract;
+  };
 
   const checkIfWalletIsConnected = async () => {
     try {
@@ -36,7 +48,6 @@ export const TransactionProvider = ({ children }) => {
       const accounts = ethereum.request({ method: "eth_accounts" });
       if (accounts.length) {
         setCurrentAccount(accounts[0]);
-        // getAllTransactions();
       } else {
         console.log("No accounts found");
       }
@@ -55,21 +66,11 @@ export const TransactionProvider = ({ children }) => {
       });
       setCurrentAccount(accounts[0]);
       console.log("Connected to wallet", accounts);
+      getAllTransactions();
     } catch (error) {
       console.log("Error connecting to wallet", error);
       // throw new Error("Error connecting to wallet");
     }
-  };
-
-  const getEthereumContract = () => {
-    const provider = new ethers.providers.Web3Provider(ethereum);
-    const signer = provider.getSigner();
-    const transactionContract = new ethers.Contract(
-      process.env.NEXT_PUBLIC_CONTRACT_ADDRESS,
-      contractABI,
-      signer
-    );
-    return transactionContract;
   };
 
   const sendTransaction = async () => {
@@ -102,12 +103,37 @@ export const TransactionProvider = ({ children }) => {
       console.log("Transaction Loading- ", transactionHash.hash);
       await transactionHash.wait();
       setIsLoading(false);
+
       console.log("Transaction mined-- ", transactionHash.hash);
+      getAllTransactions();
       const transactionCount = await transactionContract.getTransactionCount();
       setTransactionCount(transactionCount.toNumber());
       localStorage.setItem("transactionCount", transactionCount.toNumber());
     } catch (err) {
       console.log("Error sending transaction", err);
+    }
+  };
+  const getAllTransactions = async () => {
+    try {
+      const transactionContract = getEthereumContract();
+      const availableTransactions =
+        await transactionContract.getAllTransactions();
+      const structuredTransactions = availableTransactions.map(
+        (transaction) => ({
+          addressTo: transaction.receiver,
+          addressFrom: transaction.from,
+          timestamp: new Date(
+            transaction.timestamp.toNumber() * 1000
+          ).toLocaleString(),
+          message: transaction.message,
+          keyword: transaction.keyword,
+          amount: parseInt(transaction.amount._hex) / 10 ** 18,
+        })
+      );
+      setTransactions(structuredTransactions);
+      return structuredTransactions;
+    } catch (e) {
+      console.log(e);
     }
   };
 
@@ -119,6 +145,8 @@ export const TransactionProvider = ({ children }) => {
         infos,
         setInfos,
         sendTransaction,
+        transactions,
+        isLoading,
       }}
     >
       {children}

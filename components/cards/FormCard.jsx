@@ -1,9 +1,10 @@
 import { Paper, TextField, Button, CircularProgress } from "@mui/material";
 import { TransactionContext } from "context/TransactionContext";
-import { useContext, useState } from "react";
+import { useContext } from "react";
 
 function FormCard() {
-  const { infos, setInfos, sendTransaction } = useContext(TransactionContext);
+  const { infos, setInfos, sendTransaction, isLoading } =
+    useContext(TransactionContext);
   const handleSubmit = (e) => {
     e.preventDefault();
     sendTransaction();
@@ -57,7 +58,7 @@ function FormCard() {
         value={infos.message}
         onChange={(e) => setInfos({ ...infos, message: e.target.value })}
       />
-      {false ? (
+      {isLoading ? (
         <CircularProgress color="primary" size={80} disableShrink />
       ) : (
         <Button
