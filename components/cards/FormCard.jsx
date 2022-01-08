@@ -1,13 +1,13 @@
 import { Paper, TextField, Button, CircularProgress } from "@mui/material";
-import { useState } from "react";
+import { TransactionContext } from "context/TransactionContext";
+import { useContext, useState } from "react";
 
 function FormCard() {
-  const [infos, setInfos] = useState({
-    adressTo: "",
-    amount: 0,
-    keywordGif: "",
-    message: "",
-  });
+  const { infos, setInfos, sendTransaction } = useContext(TransactionContext);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    sendTransaction();
+  };
   return (
     <Paper
       elevation={3}
@@ -67,7 +67,8 @@ function FormCard() {
             !infos.keywordGif ||
             !infos.message
           }
-          onClick={() => {}}
+          onClick={handleSubmit}
+          fullWidth
         >
           Confirme
         </Button>

@@ -3,6 +3,7 @@ import "tailwindcss/tailwind.css";
 import Layout from "@comp/utils/Layout";
 import Head from "next/head";
 import { AppProvider } from "../context/AppContext";
+import { TransactionProvider } from "context/TransactionContext";
 
 function MyApp({ Component, pageProps }) {
   return (
@@ -14,9 +15,11 @@ function MyApp({ Component, pageProps }) {
         <link rel="apple-touch-icon" sizes="180x180" href="/favicon.ico" />
       </Head>
       <AppProvider>
-        <Layout>
-          <Component {...pageProps} />
-        </Layout>
+        <TransactionProvider>
+          <Layout>
+            <Component {...pageProps} />
+          </Layout>
+        </TransactionProvider>
       </AppProvider>
     </>
   );

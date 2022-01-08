@@ -2,7 +2,7 @@ import Head from "next/head";
 import { Grid } from "@mui/material";
 import WelcomeCard from "@comp/cards/WelcomeCard";
 import WelcomeInfoCard from "@comp/cards/WelcomeInfoCard";
-import EtheriumCard from "@comp/cards/EtheriumCard";
+import EthereumCard from "@comp/cards/EthereumCard";
 import FormCard from "@comp/cards/FormCard";
 
 export default function Home() {
@@ -18,7 +18,7 @@ export default function Home() {
             <WelcomeInfoCard />
           </Grid>
           <Grid item xs={12} sm={12} md={6}>
-            <EtheriumCard />
+            <EthereumCard />
             <FormCard />
           </Grid>
         </Grid>
